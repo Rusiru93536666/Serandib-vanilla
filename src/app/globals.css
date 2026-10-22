@@ -1,0 +1,28 @@
+@import "tailwindcss";
+@theme {
+  --color-ivory: #F7F3EA; --color-forest: #183A2C; --color-cream: #E9D7A5; --color-charcoal: #20231F;
+  --font-serif: "Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --font-sans: "Segoe UI",system-ui,-apple-system,Helvetica,Arial,sans-serif;
+}
+body { background: var(--color-ivory); color: var(--color-charcoal); font-family: var(--font-sans); }
+h1,h2,h3 { font-family: var(--font-serif); color: var(--color-forest); letter-spacing: -0.01em; }
+:focus-visible { outline: 2px solid var(--color-forest); outline-offset: 2px; }
+@media (prefers-reduced-motion: no-preference) { .rise { animation: rise .9s ease-out both; } }
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.blog-rich-editor { line-height: 1.7; }
+.blog-rich-editor > * + * { margin-top: 1rem; }
+.blog-rich-editor h2 { margin-top: 2rem; font-family: var(--font-serif); font-size: 1.75rem; color: var(--color-forest); }
+.blog-rich-editor h3 { margin-top: 1.5rem; font-family: var(--font-serif); font-size: 1.375rem; color: var(--color-forest); }
+.blog-rich-editor ul { list-style: disc; padding-left: 1.75rem; }
+.blog-rich-editor ol { list-style: decimal; padding-left: 1.75rem; }
+.blog-rich-editor blockquote { border-left: 4px solid var(--color-cream); padding-left: 1rem; color: rgb(32 35 31 / 75%); }
+.blog-rich-editor a { color: var(--color-forest); text-decoration: underline; }
+.blog-rich-editor table { width: 100%; border-collapse: collapse; }
+.blog-rich-editor th, .blog-rich-editor td { min-width: 6rem; border: 1px solid rgb(24 58 44 / 20%); padding: .6rem; text-align: left; vertical-align: top; }
+.blog-rich-editor th { background: rgb(233 215 165 / 35%); }
+.blog-rich-editor .tableWrapper { overflow-x: auto; }
+.blog-rich-editor [data-blog-figure], .blog-rich-editor [data-blog-gallery], .blog-rich-editor [data-blog-chart] { cursor: pointer; border: 1px dashed rgb(24 58 44 / 40%); padding: 1rem; }
+.blog-rich-editor [data-blog-figure] img { max-height: 12rem; object-fit: contain; }
+.blog-rich-editor [data-blog-section] { border-left: 3px solid var(--color-cream); padding: .75rem 1rem; }
+.blog-rich-editor [data-blog-chart] figcaption, .blog-rich-editor [data-blog-gallery] figcaption, .blog-rich-editor [data-blog-figure] figcaption { font-size: .875rem; color: rgb(32 35 31 / 70%); }
+.blog-rich-editor p.is-editor-empty:first-child::before { float: left; height: 0; color: rgb(32 35 31 / 45%); content: attr(data-placeholder); pointer-events: none; }
