@@ -8,6 +8,7 @@ export const metadata: Metadata = { title: "Our story", description: "Sri Lankan
 export default async function About() {
   return <SectionsPage
     eyebrow="Rooted in Sri Lanka"
+    watermark="CEYLON"
     icon="leaf"
     title="Our story"
     lead="Edit this page with your real story. No company history has been assumed."

@@ -8,6 +8,7 @@ export const metadata: Metadata = { title: "Quality and traceability", descripti
 export default async function Quality() {
   return <SectionsPage
     eyebrow="Quality & traceability"
+    watermark="QUALITY"
     icon="shield"
     title="Quality and traceability"
     lead="Documents are listed only when they exist and can be shared for the specific lot you are considering."

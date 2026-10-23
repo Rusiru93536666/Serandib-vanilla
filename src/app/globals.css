@@ -9,6 +9,72 @@ h1,h2,h3 { font-family: var(--font-serif); color: var(--color-forest); letter-sp
 :focus-visible { outline: 2px solid var(--color-forest); outline-offset: 2px; }
 @media (prefers-reduced-motion: no-preference) { .rise { animation: rise .9s ease-out both; } }
 @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+/* Home hero: pointer parallax driven by --mx/--my/--gx/--gy set in HeroStage.tsx */
+.parallax { translate: calc(var(--mx, 0) * var(--d, 0) * 1px) calc(var(--my, 0) * var(--d, 0) * 1px); will-change: translate; }
+.tilt { transform: perspective(1400px) rotateX(calc(var(--my, 0) * -3deg)) rotateY(calc(var(--mx, 0) * 4deg)); transform-style: preserve-3d; }
+.hero-glow { background: radial-gradient(520px circle at var(--gx, 75%) var(--gy, 35%), rgb(233 215 165 / 40%), transparent 65%); }
+.card-sheen { background: linear-gradient(115deg, transparent 35%, rgb(255 255 255 / 14%) 50%, transparent 65%); background-size: 250% 100%; background-position: calc(50% + var(--mx, 0) * 40%) 0; }
+.hero-shadow { filter: drop-shadow(0 18px 24px rgb(24 58 44 / 22%)); }
+@media (prefers-reduced-motion: no-preference) {
+  .bloom { animation: bloom 1.3s cubic-bezier(.2, .8, .2, 1) both; }
+  .float { animation: float var(--dur, 8s) ease-in-out var(--delay, 0s) infinite; }
+  .sway { animation: sway 9s ease-in-out infinite; transform-origin: 40% 50%; }
+  .spark { animation: spark var(--dur, 8s) linear var(--delay, 0s) infinite; }
+  .hero-rule { animation: rule 1.1s cubic-bezier(.2, .8, .2, 1) .3s both; transform-origin: left; }
+}
+/* Home product carousel: cards reveal when the strip scrolls into view */
+@media (prefers-reduced-motion: no-preference) {
+  .carousel-card { opacity: 0; translate: 0 40px; transition: opacity .9s cubic-bezier(.2, .8, .2, 1), translate .9s cubic-bezier(.2, .8, .2, 1); }
+  .carousel-card.is-in { opacity: 1; translate: 0 0; }
+}
+/* Scroll reveals ([data-reveal], toggled by ScrollMotion.tsx) and cursor spotlight ([data-spotlight]) */
+.spotlight { background: radial-gradient(220px circle at var(--sx, 50%) var(--sy, 50%), rgb(233 215 165 / 55%), transparent 70%); }
+.outline-num { color: transparent; -webkit-text-stroke: 1px rgb(233 215 165 / 18%); }
+.outline-forest { color: transparent; -webkit-text-stroke: 1px rgb(24 58 44 / 9%); }
+@media (prefers-reduced-motion: no-preference) {
+  .lightbox-in { animation: fade-in .35s ease-out both; }
+  .lightbox-img { animation: zoom-in .5s cubic-bezier(.2, .8, .2, 1) both; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .steps-line { transform-origin: top; animation: draw-y 1.2s cubic-bezier(.2, .8, .2, 1) .4s both; }
+  .motion-ready .form-bar { transform: scaleX(0); transform-origin: left; transition: transform 1.2s cubic-bezier(.2, .8, .2, 1) .3s; }
+  .motion-ready .is-in > .form-bar { transform: scaleX(1); }
+}
+@keyframes draw-y { from { transform: scaleY(0); } }
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes zoom-in { from { opacity: 0; scale: .94; } }
+.group:hover .outline-num { -webkit-text-stroke-color: rgb(233 215 165 / 45%); }
+@media (prefers-reduced-motion: no-preference) {
+  .motion-ready [data-reveal] { opacity: 0; translate: 0 36px; transition: opacity .9s cubic-bezier(.2, .8, .2, 1), translate .9s cubic-bezier(.2, .8, .2, 1), scale .9s cubic-bezier(.2, .8, .2, 1); transition-delay: calc(var(--i, 0) * 90ms); }
+  .motion-ready [data-reveal="left"] { translate: -48px 0; }
+  .motion-ready [data-reveal="right"] { translate: 48px 0; }
+  .motion-ready [data-reveal="scale"] { translate: 0 20px; scale: .92; }
+  .motion-ready [data-reveal="line"] { opacity: 1; translate: none; }
+  .motion-ready [data-reveal].is-in { opacity: 1; translate: 0 0; scale: 1; }
+  .motion-ready .process .process-line { transform: scaleX(0); transform-origin: left; transition: transform 1.6s cubic-bezier(.2, .8, .2, 1) .2s; }
+  .motion-ready .process.is-in .process-line { transform: scaleX(1); }
+  .blob { animation: blob 18s ease-in-out infinite; }
+  /* Why Sri Lanka: image wipes open and settles, frame eases in, ring text rotates, watermark slides with scroll */
+  .motion-ready [data-reveal="clip"] { opacity: 1; translate: none; }
+  .motion-ready [data-reveal="clip"] .clip-target { clip-path: inset(0 100% 0 0 round 1.75rem); transition: clip-path 1.3s cubic-bezier(.7, 0, .2, 1); }
+  .motion-ready [data-reveal="clip"].is-in .clip-target { clip-path: inset(0 0 0 0 round 1.75rem); }
+  .motion-ready [data-reveal="clip"] .clip-img { scale: 1.18; transition: scale 1.8s cubic-bezier(.2, .8, .2, 1); }
+  .motion-ready [data-reveal="clip"].is-in .clip-img { scale: 1; }
+  .motion-ready [data-reveal="frame"] { translate: 24px 24px; transition-delay: .5s; }
+  .spin-slow { animation: spin 22s linear infinite; }
+  @supports (animation-timeline: view()) {
+    .why-watermark { animation: why-slide linear both; animation-timeline: view(); }
+  }
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes why-slide { from { transform: translateX(0); } to { transform: translateX(-30%); } }
+@keyframes blob { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(40px, 30px) scale(1.12); } }
+@keyframes bloom { from { opacity: 0; scale: .7; } to { opacity: 1; scale: 1; } }
+@keyframes float { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-12px) rotate(2deg); } }
+@keyframes sway { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg) translateY(-6px); } }
+@keyframes spark { 0% { opacity: 0; transform: translate(0, 0) scale(.6); } 20% { opacity: .9; } 100% { opacity: 0; transform: translate(18px, -80px) scale(1); } }
+@keyframes rule { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 .blog-rich-editor { line-height: 1.7; }
 .blog-rich-editor > * + * { margin-top: 1rem; }
 .blog-rich-editor h2 { margin-top: 2rem; font-family: var(--font-serif); font-size: 1.75rem; color: var(--color-forest); }

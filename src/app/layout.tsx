@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Header, Footer } from "@/components/Chrome";
+import { ScrollMotion } from "@/components/ScrollMotion";
 import { site } from "@/config/site";
 import { getContactSettings } from "@/lib/settings";
 
@@ -23,6 +24,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-white focus:p-3">Skip to content</a>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld).replace(/</g, "\\u003c") }} />
         <Header /><main id="main">{children}</main><Footer contact={contact} />
+        <ScrollMotion />
       </body>
     </html>
   );
