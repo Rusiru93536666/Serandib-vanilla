@@ -1,7 +1,7 @@
 // CENTRAL CONFIG: edit everything marked [TBC] before launch.
 export const TBC = "To be confirmed";
 export const site = {
-  brand: "Serandib Vanilla",
+  brand: "Ceylon Vanilla Essence",
   tagline: "Exceptional Vanilla. Rooted in Sri Lanka.",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
   // Contact details and social links are edited in Admin → Contact & social (saved in MongoDB).
