@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { inquirySchema, MULTIPLE_PRODUCTS } from "@/lib/schema";
 import { Icon } from "@/components/Icon";
+import { Spinner } from "@/components/Loaders";
 
 type Status = { kind: "idle" } | { kind: "loading" } | { kind: "ok" | "error"; msg: string };
 const buyers = ["Importer","Wholesaler","Distributor","Food manufacturer","Bakery","Tea brand","Private-label buyer","Other"];
@@ -104,7 +105,7 @@ export default function QuoteForm({ products, defaultProduct = "" }: { products:
           {err("consent")}
         </div>
         <button disabled={status.kind === "loading"} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-forest px-8 py-3.5 font-medium text-ivory shadow-lg shadow-forest/20 transition hover:bg-charcoal disabled:opacity-60 sm:w-auto">
-          <Icon name="send" />{status.kind === "loading" ? "Sending…" : "Send inquiry"}
+          {status.kind === "loading" ? <><Spinner />Sending…</> : <><Icon name="send" />Send inquiry</>}
         </button>
         <div role="status" aria-live="polite">
           {status.kind === "error" && <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{status.msg}</p>}

@@ -14,6 +14,7 @@ import { Fragment } from "@tiptap/pm/model";
 import { BlogChart, BlogFigure, BlogGallery, BlogSection } from "@/lib/blog-editor-nodes";
 import type { BlogNode, BlogPost } from "@/lib/blog";
 import { site } from "@/config/site";
+import { Spinner } from "@/components/Loaders";
 import { Icon, StatusBadge, formatDate, type IconName } from "@/components/AdminUi";
 
 const inputClass = "w-full rounded-md border border-charcoal/20 bg-white px-3 py-2 text-sm shadow-sm placeholder:text-charcoal/35 focus:border-forest focus:outline-none focus:ring-2 focus:ring-forest/20";
@@ -453,11 +454,11 @@ export default function BlogPostEditor({ initial, id }: { initial: BlogPost | nu
             </label>
 
             {(error || notice) && <p role={error ? "alert" : "status"} className={`mt-4 rounded-md border px-3 py-2 text-sm ${error ? "border-red-200 bg-red-50 text-red-800" : "border-forest/20 bg-forest/5 text-forest"}`}>{error || notice}</p>}
-            {uploading && <p role="status" className="mt-4 text-sm text-charcoal/65">Uploading image…</p>}
+            {uploading && <p role="status" className="mt-4 flex items-center gap-2 text-sm text-charcoal/65"><Spinner />Uploading image…</p>}
 
             <div className="mt-5 space-y-2">
               <button className="flex w-full items-center justify-center gap-2 rounded-md bg-forest px-4 py-2.5 text-sm font-medium text-ivory shadow-sm hover:bg-charcoal disabled:opacity-60" type="submit" disabled={busy || uploading}>
-                <Icon name="check" />{busy ? "Saving…" : status === "published" ? "Save and publish" : status === "scheduled" ? "Save schedule" : "Save draft"}
+                {busy ? <Spinner /> : <Icon name="check" />}{busy ? "Saving…" : status === "published" ? "Save and publish" : status === "scheduled" ? "Save schedule" : "Save draft"}
               </button>
               <div className="grid grid-cols-2 gap-2">
                 <button className="flex items-center justify-center gap-1.5 rounded-md border border-forest/30 px-3 py-2 text-sm text-forest hover:bg-forest/5 disabled:opacity-60" type="button" disabled={busy || uploading} onClick={() => void save({ preview: true })}><Icon name="eye" />Save &amp; preview</button>

@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Icon } from "@/components/Icon";
+import { Spinner } from "@/components/Loaders";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const inp = "w-full rounded-md border border-charcoal/20 bg-white px-3 py-2 text-sm shadow-sm focus:border-forest focus:outline-none focus:ring-2 focus:ring-forest/20";
 const uid = () => Math.random().toString(36).slice(2);
@@ -61,7 +62,7 @@ export function SectionImage({ src, alt, onChange, dest }: { src?: string; alt?:
       </> : <button type="button" onClick={pick} disabled={uploading} className="flex aspect-[4/3] w-full flex-col items-center justify-center gap-1.5 p-4 text-center text-sm text-charcoal/60 hover:text-forest">
         <Icon name="upload" className="h-6 w-6" /><span>{uploading ? "Uploading…" : "Click or drop an image"}</span><span className="text-xs text-charcoal/45">JPEG, PNG, or WebP · 5 MB max</span>
       </button>}
-      {uploading && src && <div className="absolute inset-0 flex items-center justify-center bg-white/70 text-sm text-forest">Uploading…</div>}
+      {uploading && src && <div className="absolute inset-0 flex items-center justify-center gap-2 bg-white/70 text-sm text-forest"><Spinner />Uploading…</div>}
     </div>
     {error && <p role="alert" className="text-xs text-red-700">{error}</p>}
     {src && <Txt label="Image description (alt text)" value={alt ?? ""} onChange={(v) => onChange({ imageAlt: v })} />}
@@ -345,7 +346,7 @@ export default function Editor({ k, initial }: { k: "products" | "story" | "qual
         <button type="button" onClick={() => setData((d) => [{ _id: uid(), _auto: true, slug: "", title: "", excerpt: "", body: "", date: new Date().toISOString().slice(0, 10), published: false }, ...d])} className="border border-forest px-4 py-2 text-sm text-forest">Add post</button>
       </>}
       <div className="sticky bottom-3 z-10 flex flex-wrap items-center gap-4 rounded-xl border border-forest/15 bg-white/95 p-3 shadow-lg shadow-forest/10 backdrop-blur">
-        <button onClick={save} disabled={busy} className="inline-flex items-center gap-2 rounded-md bg-forest px-5 py-2.5 text-sm font-medium text-ivory hover:bg-charcoal disabled:opacity-60"><Icon name="check" />{busy ? "Saving…" : "Save changes"}</button>
+        <button onClick={save} disabled={busy} className="inline-flex items-center gap-2 rounded-md bg-forest px-5 py-2.5 text-sm font-medium text-ivory hover:bg-charcoal disabled:opacity-60">{busy ? <><Spinner />Saving…</> : <><Icon name="check" />Save changes</>}</button>
         <p role="status" aria-live="polite" className={`text-sm ${status?.ok ? "text-forest" : "text-red-700"}`}>{status?.msg}</p>
       </div>
     </div>

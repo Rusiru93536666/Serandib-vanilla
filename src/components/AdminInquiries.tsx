@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { InquiryStatus, StoredInquiry } from "@/lib/inquiries";
 import { Icon } from "@/components/Icon";
+import { Spinner } from "@/components/Loaders";
 
 const statuses: { value: InquiryStatus; label: string; badge: string; dot: string }[] = [
   { value: "new", label: "New", badge: "bg-amber-50 text-amber-800 ring-amber-600/25", dot: "bg-amber-500" },
@@ -160,7 +161,7 @@ export default function AdminInquiries({ initial }: { initial: StoredInquiry[] }
               <span className="mb-2 block text-sm font-medium">Private notes</span>
               <textarea className={input} rows={5} value={notes} placeholder="Call notes, prices quoted, follow-up dates…" onChange={(e) => setNotes(e.target.value)} />
             </label>
-            <button type="button" disabled={busy || notes === selected.notes} onClick={() => void update({ notes })} className="w-full rounded-md border border-forest/30 px-3 py-2 text-sm text-forest hover:bg-forest/5 disabled:opacity-50">{busy ? "Saving…" : "Save notes"}</button>
+            <button type="button" disabled={busy || notes === selected.notes} onClick={() => void update({ notes })} className="flex w-full items-center justify-center gap-2 rounded-md border border-forest/30 px-3 py-2 text-sm text-forest hover:bg-forest/5 disabled:opacity-50">{busy ? <><Spinner />Saving…</> : "Save notes"}</button>
             {message && <p role="status" className={`text-sm ${message.ok ? "text-forest" : "text-red-700"}`}>{message.text}</p>}
             <button type="button" disabled={busy} onClick={() => void update({ read: false })} className="flex items-center gap-1.5 text-sm text-charcoal/65 hover:text-forest hover:underline disabled:opacity-50"><Icon name="mail" />Mark as unread</button>
             <button type="button" disabled={busy} onClick={() => void remove()} className="inline-flex items-center gap-1.5 text-sm text-red-700 hover:underline disabled:opacity-50"><Icon name="trash" />Delete inquiry</button>
