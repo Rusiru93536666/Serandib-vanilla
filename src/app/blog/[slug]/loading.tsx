@@ -15,12 +15,11 @@ export default function Loading() {
         <Skeleton className="aspect-[16/10] w-full rounded-[1.75rem]" />
       </div>
     </div>
-    <div className="mx-auto grid w-full max-w-[96rem] gap-12 px-5 py-12 sm:px-8 sm:py-16 lg:grid-cols-[minmax(0,1fr)_20rem] lg:px-12 xl:grid-cols-[13rem_minmax(0,1fr)_20rem] xl:gap-14 2xl:grid-cols-[15rem_minmax(0,1fr)_22rem]">
-      <div className="hidden space-y-3 xl:block">{["w-24", "w-full", "w-5/6", "w-4/5"].map((w, i) => <Skeleton key={i} className={`h-4 ${w}`} />)}</div>
-      <div className="mx-auto w-full max-w-3xl space-y-3">
+    <div className="mx-auto grid w-full max-w-[96rem] gap-12 px-5 py-12 sm:px-8 sm:py-16 lg:grid-cols-[minmax(0,1fr)_20rem] lg:px-12 xl:grid-cols-[minmax(0,1fr)_22rem] xl:gap-14 2xl:grid-cols-[minmax(0,1fr)_24rem]">
+      <div className="mx-auto w-full max-w-[60rem] space-y-3">
         {["w-full", "w-11/12", "w-full", "w-4/5", "w-full", "w-2/3", "w-full", "w-11/12"].map((w, i) => <Skeleton key={i} className={`h-4 ${w}`} />)}
       </div>
-      <div className="space-y-6"><Skeleton className="h-80 w-full rounded-3xl" /><Skeleton className="h-48 w-full rounded-3xl" /></div>
+      <div className="space-y-6"><Skeleton className="hidden h-56 w-full rounded-3xl lg:block" /><Skeleton className="h-80 w-full rounded-3xl" /><Skeleton className="h-48 w-full rounded-3xl" /></div>
     </div>
     <span className="sr-only">Loading…</span>
   </div>;

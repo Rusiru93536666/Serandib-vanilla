@@ -1,4 +1,23 @@
-import { Node, mergeAttributes } from "@tiptap/core";
+import { Mark, Node, mergeAttributes } from "@tiptap/core";
+
+// Preset text sizes for the editor's "Size" menu (relative to the article's body text). Only these keys are saved.
+export const fontSizes = { sm: { label: "Small", em: ".875em" }, lg: { label: "Large", em: "1.25em" }, xl: { label: "Extra large", em: "1.5em" }, "2xl": { label: "Huge", em: "2em" } } as const;
+export type FontSizeKey = keyof typeof fontSizes;
+export const isFontSize = (value: unknown): value is FontSizeKey => typeof value === "string" && Object.hasOwn(fontSizes, value);
+
+export const FontSize = Mark.create({
+  name: "fontSize",
+  addAttributes() {
+    return { size: { default: "lg" } };
+  },
+  parseHTML() {
+    return [{ tag: "span[data-font-size]", getAttrs: (el) => (isFontSize(el.getAttribute("data-font-size")) ? { size: el.getAttribute("data-font-size") } : false) }];
+  },
+  renderHTML({ HTMLAttributes }) {
+    const size = isFontSize(HTMLAttributes.size) ? HTMLAttributes.size : "lg";
+    return ["span", { "data-font-size": size, style: `font-size: ${fontSizes[size].em}` }, 0];
+  },
+});
 
 export const BlogFigure = Node.create({
   name: "blogFigure",

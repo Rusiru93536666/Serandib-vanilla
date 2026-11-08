@@ -11,7 +11,7 @@ import { Table, TableRow, TableHeader, TableCell } from "@tiptap/extension-table
 import Youtube from "@tiptap/extension-youtube";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Fragment } from "@tiptap/pm/model";
-import { BlogChart, BlogFigure, BlogGallery, BlogSection } from "@/lib/blog-editor-nodes";
+import { BlogChart, BlogFigure, BlogGallery, BlogSection, FontSize, fontSizes, isFontSize } from "@/lib/blog-editor-nodes";
 import type { BlogNode, BlogPost } from "@/lib/blog";
 import { site } from "@/config/site";
 import { Spinner } from "@/components/Loaders";
@@ -116,7 +116,7 @@ export default function BlogPostEditor({ initial, id }: { initial: BlogPost | nu
     TableRow, TableHeader, TableCell,
     Youtube.configure({ nocookie: true, controls: true, modestBranding: true }),
     Placeholder.configure({ placeholder: "Write the article here. Use the toolbar to format text and add content blocks." }),
-    BlogFigure, BlogGallery, BlogChart, BlogSection,
+    BlogFigure, BlogGallery, BlogChart, BlogSection, FontSize,
   ], []);
   const editor = useEditor({
     extensions,
@@ -130,6 +130,7 @@ export default function BlogPostEditor({ initial, id }: { initial: BlogPost | nu
     selector: ({ editor: e }) => e ? {
       bold: e.isActive("bold"), italic: e.isActive("italic"), h2: e.isActive("heading", { level: 2 }), h3: e.isActive("heading", { level: 3 }),
       bullet: e.isActive("bulletList"), ordered: e.isActive("orderedList"), quote: e.isActive("blockquote"), link: e.isActive("link"), table: e.isActive("table"),
+      size: e.getAttributes("fontSize").size as string | undefined,
       canUndo: e.can().undo(), canRedo: e.can().redo(),
       words: e.state.doc.textContent.trim().split(/\s+/).filter(Boolean).length,
     } : null,
@@ -396,6 +397,15 @@ export default function BlogPostEditor({ initial, id }: { initial: BlogPost | nu
               <ToolButton text="H3" label="Heading 3" active={active?.h3} onClick={() => run(() => editor?.chain().focus().toggleHeading({ level: 3 }).run())} />
               <ToolButton icon="bold" label="Bold" active={active?.bold} onClick={() => run(() => editor?.chain().focus().toggleBold().run())} />
               <ToolButton icon="italic" label="Italic" active={active?.italic} onClick={() => run(() => editor?.chain().focus().toggleItalic().run())} />
+              <label className="ml-0.5 inline-flex items-center">
+                <span className="sr-only">Text size</span>
+                <select title="Text size (select text first)" value={isFontSize(active?.size) ? active.size : ""}
+                  onChange={(e) => { const size = e.target.value; const chain = editor?.chain().focus(); if (size) chain?.setMark("fontSize", { size }).run(); else chain?.unsetMark("fontSize").run(); }}
+                  className={`h-8 rounded-md border px-1.5 text-xs transition-colors focus:outline-none focus:ring-2 focus:ring-forest/20 ${isFontSize(active?.size) ? "border-forest bg-forest text-ivory" : "border-forest/15 bg-white text-charcoal/75 hover:border-forest/40"}`}>
+                  <option value="">Normal size</option>
+                  {Object.entries(fontSizes).map(([key, { label }]) => <option key={key} value={key}>{label}</option>)}
+                </select>
+              </label>
               <Divider />
               <ToolButton icon="list" label="Bulleted list" active={active?.bullet} onClick={() => run(() => editor?.chain().focus().toggleBulletList().run())} />
               <ToolButton icon="listOrdered" label="Numbered list" active={active?.ordered} onClick={() => run(() => editor?.chain().focus().toggleOrderedList().run())} />

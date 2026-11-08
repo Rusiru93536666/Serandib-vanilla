@@ -1,5 +1,6 @@
 import type { BlogNode } from "@/lib/blog";
 import { youtubeId } from "@/lib/media";
+import { fontSizes, isFontSize } from "@/lib/blog-editor-nodes";
 
 const plainText = (node: BlogNode): string => (node.text ?? "") + (node.content ?? []).map(plainText).join("");
 const headingId = (text: string) => text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
@@ -22,6 +23,7 @@ function marks(text: React.ReactNode, node: BlogNode) {
     if (mark.type === "italic") return <em key={index}>{value}</em>;
     if (mark.type === "strike") return <s key={index}>{value}</s>;
     if (mark.type === "underline") return <u key={index}>{value}</u>;
+    if (mark.type === "fontSize" && isFontSize(mark.attrs?.size)) return <span key={index} style={{ fontSize: fontSizes[mark.attrs.size].em }}>{value}</span>;
     if (mark.type === "code") return <code key={index} className="rounded bg-cream/40 px-1.5 py-0.5 text-[0.9em]">{value}</code>;
     if (mark.type === "link") return <a key={index} href={String(mark.attrs?.href)} className="font-medium text-forest underline decoration-cream decoration-2 underline-offset-4 transition-colors hover:decoration-forest" rel={String(mark.attrs?.href).startsWith("http") ? "noopener noreferrer" : undefined}>{value}</a>;
     return value;

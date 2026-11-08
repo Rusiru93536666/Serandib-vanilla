@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isFontSize } from "@/lib/blog-editor-nodes";
 import { readFileContent, type Post } from "@/lib/store";
 import { safeMediaUrl } from "@/lib/media";
 import { cloudinaryFolders, moveLocalImage } from "@/lib/cloudinary";
@@ -86,7 +87,7 @@ const nodeTypes = new Set([
   "image", "youtube", "table", "tableRow", "tableCell", "tableHeader",
   "blogFigure", "blogGallery", "blogChart", "blogSection",
 ]);
-const markTypes = new Set(["bold", "italic", "strike", "code", "underline", "link"]);
+const markTypes = new Set(["bold", "italic", "strike", "code", "underline", "link", "fontSize"]);
 
 export function sanitizeBlogDocument(input: unknown): BlogNode {
   if (!input || typeof input !== "object" || Array.isArray(input)) throw new Error("Post content must be a rich-text document.");
@@ -110,6 +111,11 @@ export function sanitizeBlogDocument(input: unknown): BlogNode {
           const href = (mark.attrs as Record<string, unknown> | undefined)?.href;
           if (typeof href !== "string" || !safeLink(href)) throw new Error("Links must use HTTPS or mailto.");
           return { type: "link", attrs: { href } };
+        }
+        if (mark.type === "fontSize") {
+          const size = (mark.attrs as Record<string, unknown> | undefined)?.size;
+          if (!isFontSize(size)) throw new Error("Unsupported text size.");
+          return { type: "fontSize", attrs: { size } };
         }
         return { type: mark.type };
       });
