@@ -8,3 +8,18 @@ export const safeMediaUrl = (value: string) => {
     return false;
   }
 };
+
+// Extracts the 11-character video ID from a YouTube watch, share, embed or shorts URL; "" if it is not one.
+export const youtubeId = (value: string) => {
+  try {
+    const url = new URL(value);
+    if (url.protocol !== "https:" || url.username || url.password) return "";
+    const host = url.hostname.replace(/^(www|m)\./, "");
+    const id = host === "youtu.be" ? url.pathname.slice(1)
+      : host === "youtube.com" || host === "youtube-nocookie.com" ? url.searchParams.get("v") ?? url.pathname.split("/").filter(Boolean).pop() ?? ""
+      : "";
+    return /^[A-Za-z0-9_-]{11}$/.test(id) ? id : "";
+  } catch {
+    return "";
+  }
+};

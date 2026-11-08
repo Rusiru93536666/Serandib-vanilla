@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { isAdmin } from "@/lib/auth";
 import { saveKey } from "@/lib/store";
-import { safeMediaUrl } from "@/lib/media";
+import { safeMediaUrl, youtubeId } from "@/lib/media";
+import { sanitizeBlogDocument } from "@/lib/blog";
 
 const slug = z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, "Slug: lowercase letters, numbers and hyphens").max(80);
 const sec = z.object({
@@ -13,7 +14,13 @@ const sec = z.object({
   imageAlt: z.string().trim().max(300).optional(),
 });
 const prod = z.object({ slug, name: z.string().trim().min(1).max(100), short: z.string().max(300), intro: z.string().max(2000), uses: z.array(z.string().max(200)).max(20), note: z.string().max(500), imageNote: z.string().max(300), specs: z.array(z.tuple([z.string().max(100), z.string().max(300)])).max(30), packaging: z.string().max(2000),
-  images: z.array(z.object({ src: z.string().max(2048).refine(safeMediaUrl, "Product images must be uploaded images or secure HTTPS URLs."), alt: z.string().trim().max(300) })).max(8).optional() });
+  images: z.array(z.object({ src: z.string().max(2048).refine(safeMediaUrl, "Product images must be uploaded images or secure HTTPS URLs."), alt: z.string().trim().max(300) })).max(8).optional(),
+  // Same rich-text rules as blog posts: only known blocks, safe links, uploaded/HTTPS images and YouTube embeds.
+  description: z.unknown().optional().transform((v, ctx) => {
+    if (v === undefined || v === null) return undefined;
+    try { return sanitizeBlogDocument(v); } catch (e) { ctx.addIssue({ code: "custom", message: `Detailed description: ${e instanceof Error ? e.message : "invalid content"}` }); return z.NEVER; }
+  }),
+  video: z.string().trim().max(300).refine((v) => !v || !!youtubeId(v), "The product video must be a YouTube link.").optional() });
 const photo = z.object({
   src: z.string().max(2048).refine(safeMediaUrl, "Gallery images must be uploaded images or secure HTTPS URLs."),
   alt: z.string().trim().max(300),
@@ -24,9 +31,10 @@ const text = (max: number) => z.string().trim().max(max);
 const image = z.string().max(2048).refine((v) => !v || safeMediaUrl(v), "Images must be uploaded images or secure HTTPS URLs.");
 const home = z.object({
   hero: z.object({ eyebrow: text(80), title: text(150).min(1, "The hero needs a title"), text: text(600), image, imageAlt: text(300), primaryLabel: text(40), secondaryLabel: text(40) }),
-  products: z.object({ title: text(120), text: text(400) }),
+  banner: z.object({ image, imageAlt: text(300) }),
+  products: z.object({ title: text(120), text: text(400), featured: z.array(slug).max(4, "Choose up to 4 home page products"), storeLabel: text(40) }),
   why: z.object({ title: text(150), text: text(3000), image, imageAlt: text(300) }),
-  process: z.object({ title: text(150), text: text(400), steps: z.array(z.object({ title: text(80).min(1, "Every step needs a title"), text: text(400) })).max(8) }),
+  process: z.object({ title: text(150), text: text(400), steps: z.array(z.object({ title: text(80).min(1, "Every step needs a title"), text: text(400), image: image.optional(), imageAlt: text(300).optional() })).max(8) }),
   applications: z.object({ title: text(120), items: z.array(text(60).min(1)).max(16) }),
   highlights: z.array(z.object({ title: text(120).min(1, "Every card needs a title"), text: text(500), linkLabel: text(60), linkHref: z.string().regex(/^\/[a-z0-9/-]*$/, "Card links must be site pages, e.g. /quality") })).max(4),
   cta: z.object({ title: text(150), text: text(400), buttonLabel: text(40) }),

@@ -2,6 +2,8 @@
 import { useState } from "react";
 import { Icon } from "@/components/Icon";
 import { Spinner } from "@/components/Loaders";
+import ProductDescriptionEditor from "@/components/ProductDescriptionEditor";
+import { youtubeId } from "@/lib/media";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const inp = "w-full rounded-md border border-charcoal/20 bg-white px-3 py-2 text-sm shadow-sm focus:border-forest focus:outline-none focus:ring-2 focus:ring-forest/20";
 const uid = () => Math.random().toString(36).slice(2);
@@ -14,6 +16,8 @@ function clean(o: any): any {
   if (r.items) r.items = r.items.map((x: string) => x.trim()).filter(Boolean);
   if (r.specs) r.specs = r.specs.map(([k, v]: string[]) => [k.trim(), v.trim()]).filter(([k]: string[]) => k);
   if ("image" in r && !r.image) { delete r.image; delete r.imageAlt; }
+  if ("description" in r && !r.description) delete r.description;
+  if (typeof r.video === "string") r.video = r.video.trim();
   return r;
 }
 
@@ -232,7 +236,7 @@ export default function Editor({ k, initial }: { k: "products" | "story" | "qual
   }
   function addProduct() {
     const _id = uid();
-    setData((d) => [...d, { _id, _new: true, _auto: true, slug: "", name: "", short: "", intro: "", uses: [], note: "", imageNote: "", specs: [], packaging: "", images: [] }]);
+    setData((d) => [...d, { _id, _new: true, _auto: true, slug: "", name: "", short: "", intro: "", uses: [], note: "", imageNote: "", specs: [], packaging: "", images: [], video: "" }]);
     setTimeout(() => document.getElementById(`product-${_id}`)?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
   }
   const move = (i: number, dir: -1 | 1) => setData((d) => { const c = [...d]; [c[i + dir], c[i]] = [c[i], c[i + dir]]; return c; });
@@ -253,7 +257,7 @@ export default function Editor({ k, initial }: { k: "products" | "story" | "qual
             </span>
             <span className="min-w-0 flex-1">
               <span className="flex items-center gap-2"><span className="truncate font-serif text-xl text-forest">{p.name || "Untitled product"}</span>{p._new && <span className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[0.7rem] font-medium text-amber-800">New · not saved</span>}</span>
-              <span className="block truncate font-mono text-xs text-charcoal/50">/products/{p.slug || "…"} · {(p.images ?? []).length} photo{(p.images ?? []).length === 1 ? "" : "s"} · {p.specs.length} specs</span>
+              <span className="block truncate font-mono text-xs text-charcoal/50">/products/{p.slug || "…"} · {(p.images ?? []).length} photo{(p.images ?? []).length === 1 ? "" : "s"} · {p.specs.length} specs{p.video ? " · video" : ""}</span>
             </span>
             <span className="flex items-center gap-0.5" onClick={(e) => { if (!(e.target as HTMLElement).closest("a")) e.preventDefault(); }}>
               <button type="button" title="Move up" aria-label="Move product up" disabled={i === 0} onClick={() => move(i, -1)} className={iconBtn}><Icon name="arrowUp" /></button>
@@ -282,6 +286,21 @@ export default function Editor({ k, initial }: { k: "products" | "story" | "qual
               </label>
               <div className="sm:col-span-2"><Txt label="Short description" value={p.short} onChange={(v) => up(i, { short: v })} /></div>
               <div className="sm:col-span-2"><Txt label="Introduction" rows={4} value={p.intro} onChange={(v) => up(i, { intro: v })} /></div>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-base font-semibold text-forest">Detailed description <span className="font-normal text-charcoal/50">(optional)</span></h3>
+                <p className="mt-1 text-xs text-charcoal/55">The full product story shown on the product page. Use headings, lists, tables, images and videos.</p>
+              </div>
+              <ProductDescriptionEditor value={p.description} onChange={(description) => up(i, { description })} />
+              <div>
+                <Txt label="YouTube video (optional)" value={p.video ?? ""} onChange={(v) => up(i, { video: v })} />
+                {p.video?.trim()
+                  ? youtubeId(p.video.trim())
+                    ? <div className="mt-3 aspect-video max-w-md overflow-hidden rounded-lg bg-charcoal/5 ring-1 ring-forest/10"><iframe className="h-full w-full" src={`https://www.youtube-nocookie.com/embed/${youtubeId(p.video.trim())}`} title="Video preview" loading="lazy" allowFullScreen /></div>
+                    : <p className="mt-1 text-xs text-amber-700">Paste a YouTube link, e.g. https://www.youtube.com/watch?v=… or https://youtu.be/…</p>
+                  : <p className="mt-1 text-xs text-charcoal/55">Shown as a featured video on the product page. Leave blank for none.</p>}
+              </div>
             </div>
             <div className="grid gap-6 lg:grid-cols-[1fr_1.4fr]">
               <div className="space-y-4">

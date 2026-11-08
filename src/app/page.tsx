@@ -4,7 +4,7 @@ import { getContent } from "@/lib/store";
 import { Icon, type IconName } from "@/components/Icon";
 import { ProductPlaceholder } from "@/components/ProductMedia";
 import { HeroStage } from "@/components/HeroStage";
-import { ProductCarousel } from "@/components/ProductCarousel";
+import { ProcessTimeline } from "@/components/ProcessTimeline";
 import type { CSSProperties, ReactNode } from "react";
 export const dynamic = "force-dynamic";
 
@@ -23,6 +23,11 @@ const cardIcons: Record<string, IconName> = { "/quality": "shield", "/contact": 
 export default async function Home() {
   const { home, products } = await getContent();
   const { hero, why, process, applications, highlights, cta } = home;
+  // Admin-chosen home products (up to 4, in order); falls back to the first 4 when none are chosen.
+  const chosen = home.products.featured.map((slug) => products.find((p) => p.slug === slug)).filter((p) => p !== undefined);
+  const featured = (chosen.length ? chosen : products).slice(0, 4);
+  const storeLabel = home.products.storeLabel || "Visit store";
+  const banner = home.banner;
   return (
     <>
       <HeroStage className="relative overflow-hidden bg-gradient-to-b from-cream/45 via-ivory to-ivory">
@@ -77,13 +82,58 @@ export default async function Home() {
         </div>
       </HeroStage>
 
-      <section className="mx-auto max-w-6xl px-5 py-20 sm:py-24">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div className="max-w-2xl"><h2 className="text-4xl sm:text-5xl">{home.products.title}</h2>{home.products.text && <p className="mt-3 text-lg text-charcoal/65">{home.products.text}</p>}</div>
-          <Link href="/products" className="inline-flex items-center gap-1.5 text-sm font-medium text-forest hover:underline underline-offset-4">All products<Icon name="arrowRight" className="h-4 w-4" /></Link>
+      {banner.image && <section aria-label={banner.imageAlt || "Banner"} className="w-full">
+        <img src={banner.image} alt={banner.imageAlt} className="block aspect-[4/5] w-full bg-forest object-cover sm:aspect-[16/9] lg:aspect-auto lg:h-[min(42vw,46rem)]" />
+      </section>}
+
+      {featured.length > 0 && <section aria-labelledby="home-products" className="mx-auto max-w-6xl px-5 py-20 sm:py-24">
+        <div data-reveal className="flex flex-wrap items-end justify-between gap-6">
+          <div className="max-w-2xl">
+            <p className="text-xs font-semibold uppercase tracking-[.2em] text-[#B07D22]">Featured products</p>
+            <h2 id="home-products" className="mt-3 text-4xl sm:text-5xl">{home.products.title}</h2>
+            {home.products.text && <p className="mt-3 text-lg text-charcoal/65">{home.products.text}</p>}
+          </div>
+          <Link href="/products" className="group/btn inline-flex items-center gap-2 rounded-full bg-forest px-6 py-3 text-sm font-medium text-ivory shadow-lg shadow-forest/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-charcoal hover:shadow-xl">
+            <Icon name="leaf" className="h-4 w-4" />{storeLabel}<Icon name="arrowRight" className="h-4 w-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
+          </Link>
         </div>
-        <div className="mt-8"><ProductCarousel products={products} /></div>
-      </section>
+
+        <ul className={`mt-12 grid gap-5 sm:grid-cols-2 lg:gap-6 ${featured.length >= 4 ? "lg:grid-cols-4" : featured.length === 3 ? "lg:grid-cols-3" : ""}`}>
+          {featured.map((p, i) => <li key={p.slug} data-reveal style={{ "--i": i } as CSSProperties} className="min-w-0">
+            <Link href={`/products/${p.slug}`} data-spotlight className="group relative flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-forest/10 bg-white shadow-sm transition-all duration-500 ease-[cubic-bezier(.2,.8,.2,1)] hover:-translate-y-2 hover:border-forest/20 hover:shadow-2xl hover:shadow-forest/15">
+              <div className="relative overflow-hidden">
+                {p.images?.[0]
+                  ? <img src={p.images[0].src} alt="" loading="lazy" className="aspect-[4/5] w-full object-cover transition-transform duration-1000 ease-[cubic-bezier(.2,.8,.2,1)] group-hover:scale-[1.08]" />
+                  : <ProductPlaceholder name={p.name} className="aspect-[4/5] w-full transition-transform duration-1000 group-hover:scale-[1.08]" />}
+                <span aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-t from-forest/70 via-forest/0 to-transparent opacity-60 transition-opacity duration-500 group-hover:opacity-100" />
+                <span aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(260px_circle_at_var(--sx,50%)_var(--sy,50%),rgb(255_255_255/22%),transparent_70%)] opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 font-serif text-sm text-forest shadow-sm backdrop-blur">{String(i + 1).padStart(2, "0")}</span>
+                <span aria-hidden="true" className="absolute bottom-4 right-4 flex h-11 w-11 translate-y-3 items-center justify-center rounded-full bg-cream text-forest opacity-0 shadow-lg transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100"><Icon name="arrowRight" className="h-4 w-4 -rotate-45 transition-transform duration-500 group-hover:rotate-0" /></span>
+              </div>
+              <div className="flex flex-1 flex-col p-6">
+                <h3 className="text-2xl leading-snug">{p.name}</h3>
+                {p.short && <p className="mt-2 line-clamp-2 flex-1 text-sm leading-6 text-charcoal/70">{p.short}</p>}
+                <span className="mt-5 inline-flex items-center gap-2 border-t border-forest/10 pt-4 text-sm font-medium text-forest">
+                  <span className="relative">View details<span className="absolute -bottom-0.5 left-0 h-px w-full origin-left scale-x-0 bg-forest transition-transform duration-500 group-hover:scale-x-100" /></span>
+                  <Icon name="arrowRight" className="h-4 w-4 transition-transform duration-500 group-hover:translate-x-1.5" />
+                </span>
+              </div>
+            </Link>
+          </li>)}
+        </ul>
+
+        <div data-reveal className="mt-10 flex flex-col items-center justify-between gap-4 rounded-3xl border border-forest/10 bg-gradient-to-r from-cream/40 via-ivory to-cream/30 px-6 py-5 sm:flex-row sm:px-8">
+          <p className="text-center text-sm text-charcoal/70 sm:text-left">
+            {products.length > featured.length
+              ? <>Showing {featured.length} of <span className="font-semibold text-forest">{products.length} products</span>. Browse the full range, specifications and wholesale options.</>
+              : <>Browse full specifications, packaging and wholesale options for every product.</>}
+          </p>
+          <Link href="/products" className="group/link inline-flex shrink-0 items-center gap-2 text-sm font-medium text-forest">
+            <span className="relative">{storeLabel}<span className="absolute -bottom-0.5 left-0 h-px w-full origin-left scale-x-0 bg-forest transition-transform duration-500 group-hover/link:scale-x-100" /></span>
+            <span className="flex h-9 w-9 items-center justify-center rounded-full border border-forest/25 transition-all duration-300 group-hover/link:border-forest group-hover/link:bg-forest group-hover/link:text-ivory"><Icon name="arrowRight" className="h-4 w-4" /></span>
+          </Link>
+        </div>
+      </section>}
 
       <section className="why relative overflow-hidden border-y border-forest/10 bg-white/60">
         <span aria-hidden="true" className="why-watermark pointer-events-none absolute -bottom-8 left-0 whitespace-nowrap font-serif text-[9rem] leading-none text-transparent [-webkit-text-stroke:1px_rgb(24_58_44/8%)] sm:text-[13rem]">CEYLON · CEYLON · CEYLON</span>
@@ -133,25 +183,12 @@ export default async function Home() {
         <div aria-hidden="true" className="blob absolute -bottom-40 -left-24 h-[26rem] w-[26rem] rounded-full bg-[#2f5a43]/60 blur-3xl" style={{ animationDelay: "-9s" }} />
         <div aria-hidden="true" className="absolute inset-0 opacity-[.07] [background-image:radial-gradient(rgb(233_215_165)_1px,transparent_1px)] [background-size:28px_28px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]" />
         <div className="relative mx-auto max-w-6xl px-5">
-          <div data-reveal className="max-w-2xl">
-            <p className="text-xs font-medium uppercase tracking-[.22em] text-cream/70">{process.steps.length} steps</p>
-            <h2 className="mt-3 text-4xl !text-ivory sm:text-5xl">{process.title}</h2>
-            {process.text && <p className="mt-4 max-w-xl text-lg leading-8 text-ivory/70">{process.text}</p>}
+          <div data-reveal className="mx-auto max-w-2xl text-center">
+            <p className="inline-flex items-center gap-2 rounded-full border border-cream/20 bg-ivory/5 px-4 py-1.5 text-xs font-medium uppercase tracking-[.22em] text-cream/80 backdrop-blur"><Icon name="leaf" className="h-3.5 w-3.5" />{process.steps.length} steps</p>
+            <h2 className="mt-5 text-4xl !text-ivory sm:text-5xl lg:text-6xl">{process.title}</h2>
+            {process.text && <p className="mx-auto mt-5 max-w-xl text-lg leading-8 text-ivory/70">{process.text}</p>}
           </div>
-          <ol data-reveal="line" className={`process relative mt-14 grid gap-5 sm:grid-cols-2 ${process.steps.length >= 5 ? "lg:grid-cols-5" : process.steps.length === 4 ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
-            <span aria-hidden="true" className="process-line absolute left-6 right-6 top-6 hidden h-px bg-gradient-to-r from-cream/70 via-cream/40 to-cream/10 lg:block" />
-            {process.steps.map((s, i) => <li key={i} data-reveal style={{ "--i": i + 1 } as CSSProperties} className="group relative">
-              <span className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full bg-cream font-serif text-lg text-forest shadow-[0_0_0_6px_rgb(24_58_44)] transition-transform duration-500 group-hover:scale-110">
-                <span aria-hidden="true" className="absolute inset-0 rounded-full border border-cream/60 opacity-0 group-hover:animate-ping group-hover:opacity-100" />
-                {i + 1}
-              </span>
-              <div className="relative mt-5 h-[calc(100%-4.25rem)] overflow-hidden rounded-3xl border border-ivory/10 bg-ivory/[.04] p-6 backdrop-blur transition-all duration-500 ease-[cubic-bezier(.2,.8,.2,1)] group-hover:-translate-y-1.5 group-hover:border-cream/30 group-hover:bg-ivory/[.08] pb-16">
-                <span aria-hidden="true" className="outline-num pointer-events-none absolute -bottom-2 right-3 font-serif text-6xl leading-none transition-all duration-700 group-hover:-translate-y-1.5">{String(i + 1).padStart(2, "0")}</span>
-                <h3 className="relative text-xl !text-ivory">{s.title}</h3>
-                {s.text && <p className="relative mt-2 text-sm leading-6 text-ivory/70">{s.text}</p>}
-              </div>
-            </li>)}
-          </ol>
+          <ProcessTimeline steps={process.steps} />
         </div>
       </section>}
 

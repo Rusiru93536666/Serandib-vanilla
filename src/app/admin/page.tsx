@@ -40,7 +40,7 @@ export default async function Admin({ searchParams }: { searchParams: Promise<{ 
       {tab === "home" && <p className="mt-4 text-sm text-charcoal/60">Each panel matches a section of the <Link href="/" target="_blank" className="text-forest underline underline-offset-4">home page</Link>, from top to bottom. Open a panel to edit it.</p>}
       {tab === "gallery" && <p className="mt-4 text-sm text-charcoal/60">Photos appear on the public <Link href="/gallery" target="_blank" className="text-forest underline underline-offset-4">Gallery page</Link> in this order. Categories become filter buttons for visitors.</p>}
       {(tab === "quality" || tab === "story") && <p className="mt-4 text-sm text-charcoal/60">Each section appears on the public <Link href={tab === "quality" ? "/quality" : "/about"} target="_blank" className="text-forest underline underline-offset-4">{tab === "quality" ? "Quality" : "Our Story"} page</Link> with its image, alternating left and right.</p>}
-      <div className="mt-8">{tab === "home" ? <HomeEditor initial={c.home} /> : tab === "contact" ? <ContactEditor initial={await getContactSettings()} /> : <Editor key={tab} k={tab} initial={c[tab]} />}</div>
+      <div className="mt-8">{tab === "home" ? <HomeEditor initial={c.home} products={c.products.map((p) => ({ slug: p.slug, name: p.name, image: p.images?.[0]?.src ?? "" }))} /> : tab === "contact" ? <ContactEditor initial={await getContactSettings()} /> : <Editor key={tab} k={tab} initial={c[tab]} />}</div>
     </div>
   );
 }

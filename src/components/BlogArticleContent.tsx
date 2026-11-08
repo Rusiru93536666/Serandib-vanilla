@@ -1,4 +1,20 @@
 import type { BlogNode } from "@/lib/blog";
+import { youtubeId } from "@/lib/media";
+
+const plainText = (node: BlogNode): string => (node.text ?? "") + (node.content ?? []).map(plainText).join("");
+const headingId = (text: string) => text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+// Section headings (h2) in document order, used for the article's table of contents.
+export function articleHeadings(content: BlogNode): { id: string; text: string }[] {
+  const found: { id: string; text: string }[] = [];
+  const walk = (node: BlogNode) => {
+    const text = node.type === "heading" && Number(node.attrs?.level) !== 3 ? plainText(node).trim() : node.type === "blogSection" ? String(node.attrs?.title ?? "").trim() : "";
+    if (text && headingId(text)) found.push({ id: headingId(text), text });
+    node.content?.forEach(walk);
+  };
+  walk(content);
+  return found;
+}
 
 function marks(text: React.ReactNode, node: BlogNode) {
   return (node.marks ?? []).reduce<React.ReactNode>((value, mark, index) => {
@@ -78,7 +94,7 @@ function NodeView({ node }: { node: BlogNode }) {
   switch (node.type) {
     case "doc": return <>{children}</>;
     case "paragraph": return <p className="my-6">{children}</p>;
-    case "heading": return Number(attrs.level) === 3 ? <h3 className="mb-3 mt-10 text-2xl leading-snug">{children}</h3> : <h2 className="mb-4 mt-14 text-3xl leading-tight sm:text-[2.125rem]">{children}</h2>;
+    case "heading": return Number(attrs.level) === 3 ? <h3 className="mb-3 mt-10 text-2xl leading-snug">{children}</h3> : <h2 id={headingId(plainText(node)) || undefined} className="mb-4 mt-14 scroll-mt-28 text-3xl leading-tight sm:text-[2.125rem]">{children}</h2>;
     case "text": return <>{marks(node.text ?? "", node)}</>;
     case "hardBreak": return <br />;
     case "horizontalRule": return <hr className="mx-auto my-12 w-24 border-t-2 border-cream" />;
@@ -94,12 +110,8 @@ function NodeView({ node }: { node: BlogNode }) {
       return <div className="my-10 grid grid-cols-1 gap-4 sm:grid-cols-2">{images?.map((image, i) => <figure key={`${image.src}-${i}`}><img src={image.src} alt={image.alt} loading="lazy" className="aspect-[4/3] w-full rounded-xl object-cover" />{image.caption && <figcaption className="mt-2 text-sm italic text-charcoal/60">{image.caption}</figcaption>}</figure>)}</div>;
     }
     case "youtube": {
-      let videoId = "";
-      try {
-        const url = new URL(String(attrs.src));
-        videoId = url.hostname.includes("youtu.be") ? url.pathname.slice(1) : url.searchParams.get("v") ?? url.pathname.split("/").filter(Boolean).pop() ?? "";
-      } catch { return null; }
-      if (!/^[A-Za-z0-9_-]{11}$/.test(videoId)) return null;
+      const videoId = youtubeId(String(attrs.src));
+      if (!videoId) return null;
       return <div className="my-10 aspect-video overflow-hidden rounded-2xl shadow-lg shadow-forest/10"><iframe className="h-full w-full" src={`https://www.youtube-nocookie.com/embed/${videoId}`} title="YouTube video" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen /></div>;
     }
     case "table": return <div className="my-10 overflow-x-auto rounded-2xl border border-forest/10 bg-white shadow-sm"><table className="min-w-full border-collapse text-left text-base [&_p]:my-0"><tbody>{children}</tbody></table></div>;
@@ -107,7 +119,7 @@ function NodeView({ node }: { node: BlogNode }) {
     case "tableHeader": return <th className="bg-forest/5 px-4 py-3 font-semibold text-forest">{children}</th>;
     case "tableCell": return <td className="px-4 py-3 align-top">{children}</td>;
     case "blogChart": return <Chart node={node} />;
-    case "blogSection": return <section className="my-12"><h2 className="mb-4 text-3xl leading-tight sm:text-[2.125rem]">{String(attrs.title ?? "")}</h2>{children}</section>;
+    case "blogSection": return <section className="my-12"><h2 id={headingId(String(attrs.title ?? "")) || undefined} className="mb-4 scroll-mt-28 text-3xl leading-tight sm:text-[2.125rem]">{String(attrs.title ?? "")}</h2>{children}</section>;
     default: return null;
   }
 }

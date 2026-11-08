@@ -12,11 +12,14 @@ export const qualityDefault: Section[] = [
  { h: "Documents", p: "Mark each document as available only after you hold it. Nothing is shown as certified by default.", items: ["Certificate of Analysis: not yet available", "Microbiological report: not yet available", "Pesticide residue report: not yet available", "Food safety certification: not yet available", "Origin documentation: not yet available"] },
 ];
 
-export type HomeStep = { title: string; text: string };
+export type HomeStep = { title: string; text: string; image?: string; imageAlt?: string };
 export type HomeCard = { title: string; text: string; linkLabel: string; linkHref: string };
 export type HomeContent = {
   hero: { eyebrow: string; title: string; text: string; image: string; imageAlt: string; primaryLabel: string; secondaryLabel: string };
-  products: { title: string; text: string };
+  // featured: up to 4 product slugs shown on the home page, in order (empty = the first 4 products).
+  // Full-width image banner between the hero and the products. Hidden until an image is set.
+  banner: { image: string; imageAlt: string };
+  products: { title: string; text: string; featured: string[]; storeLabel: string };
   why: { title: string; text: string; image: string; imageAlt: string };
   process: { title: string; text: string; steps: HomeStep[] };
   applications: { title: string; items: string[] };
@@ -31,7 +34,8 @@ export const homeDefault: HomeContent = {
     image: "", imageAlt: "",
     primaryLabel: "Explore our products", secondaryLabel: "Request a quote",
   },
-  products: { title: "Our products", text: "Vanilla beans, powder and tea for wholesale and manufacturing." },
+  banner: { image: "", imageAlt: "" },
+  products: { title: "Our products", text: "Vanilla beans, powder and tea for wholesale and manufacturing.", featured: [], storeLabel: "Visit store" },
   why: {
     title: "Why source vanilla from Sri Lanka",
     text: "Sri Lanka is a tropical island with a long history of spice cultivation and export, and vanilla is a growing specialty crop there.\n\nFor importers, a Sri Lankan source can add origin diversity to a vanilla supply chain. [Add verified facts about your growing regions, harvest season and supplier network.]",
@@ -60,7 +64,7 @@ export const homeDefault: HomeContent = {
 export function withHomeDefaults(h: Partial<HomeContent> = {}): HomeContent {
   const d = homeDefault;
   return {
-    hero: { ...d.hero, ...h.hero }, products: { ...d.products, ...h.products }, why: { ...d.why, ...h.why },
+    hero: { ...d.hero, ...h.hero }, banner: { ...d.banner, ...h.banner }, products: { ...d.products, ...h.products }, why: { ...d.why, ...h.why },
     process: { ...d.process, ...h.process }, applications: { ...d.applications, ...h.applications },
     highlights: h.highlights ?? d.highlights, cta: { ...d.cta, ...h.cta },
   };

@@ -1,6 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { Schema } from "mongoose";
+import type { BlogNode } from "@/lib/blog";
 import { products as defaultProducts, type Product } from "@/config/site";
 import { connectDb, defineModel } from "@/lib/db";
 import { cloudinaryFolders, moveLocalImage } from "@/lib/cloudinary";
@@ -18,6 +19,8 @@ const productSchema = new Schema<ProductDoc>({
   specs: { type: [[String]], default: [] },
   packaging: { type: String, default: "" },
   images: { type: [{ _id: false, src: String, alt: String }], default: [] },
+  description: { type: Schema.Types.Mixed, default: undefined },
+  video: { type: String, default: "" },
   order: { type: Number, default: 0 },
 }, { timestamps: true });
 
@@ -27,6 +30,7 @@ const toProduct = (d: ProductDoc): Product => ({
   slug: d.slug, name: d.name, short: d.short, intro: d.intro, uses: d.uses, note: d.note, imageNote: d.imageNote,
   specs: d.specs.map(([k = "", v = ""]) => [k, v] as [string, string]), packaging: d.packaging,
   images: (d.images ?? []).map(({ src, alt }) => ({ src, alt: alt ?? "" })),
+  ...(d.description ? { description: d.description as BlogNode } : {}), video: d.video ?? "",
 });
 
 // Copies products saved before MongoDB was added (data/content.json), moving their local photos to Cloudinary.
@@ -60,7 +64,7 @@ export async function saveProducts(list: Product[]) {
   await connectDb();
   const slugs = list.map((p) => p.slug);
   await ProductModel.bulkWrite([
-    ...list.map((p, order) => ({ updateOne: { filter: { slug: p.slug }, update: { $set: { ...p, images: p.images ?? [], order } }, upsert: true } })),
+    ...list.map((p, order) => ({ updateOne: { filter: { slug: p.slug }, update: { $set: { ...p, images: p.images ?? [], video: p.video ?? "", order }, ...(p.description ? {} : { $unset: { description: 1 as const } }) }, upsert: true } })),
     { deleteMany: { filter: { slug: { $nin: slugs } } } },
   ]);
 }

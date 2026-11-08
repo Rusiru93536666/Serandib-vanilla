@@ -4,7 +4,10 @@ import { Icon, type IconName } from "@/components/Icon";
 
 // Shared animated building blocks for the inner pages (products, our story, quality, gallery).
 
-export function PageHeader({ eyebrow, icon, title, lead, watermark, children }: { eyebrow: string; icon: IconName; title: string; lead: string; watermark: string; children?: ReactNode }) {
+// Full-width page container used by the wide layouts (blog posts, products).
+export const shell = "mx-auto w-full max-w-[96rem] px-5 sm:px-8 lg:px-12";
+
+export function PageHeader({ eyebrow, icon, title, lead, watermark, wide = false, children }: { eyebrow: string; icon: IconName; title: string; lead: string; watermark: string; wide?: boolean; children?: ReactNode }) {
   return <HeroStage className="relative overflow-hidden border-b border-forest/10 bg-gradient-to-b from-cream/40 to-ivory">
     <div aria-hidden="true" className="blob absolute -right-24 -top-24 h-96 w-96 rounded-full bg-cream/50 blur-3xl" />
     <div aria-hidden="true" className="hero-glow pointer-events-none absolute inset-0" />
@@ -15,7 +18,7 @@ export function PageHeader({ eyebrow, icon, title, lead, watermark, children }: 
     <div aria-hidden="true" className="parallax absolute bottom-10 right-[24%] hidden w-14 lg:block" style={{ "--d": -16, rotate: "58deg" } as CSSProperties}>
       <div className="bloom" style={{ animationDelay: ".7s" }}><div className="float" style={{ "--dur": "10s", "--delay": "-3s" } as CSSProperties}><img src="/images/hero-beans.webp" alt="" width={276} height={900} decoding="async" className="w-full opacity-70 blur-[1px]" /></div></div>
     </div>
-    <div className="relative mx-auto max-w-6xl px-5 pb-16 pt-16 sm:pt-24">
+    <div className={`relative pb-16 pt-16 sm:pt-24 ${wide ? shell : "mx-auto max-w-6xl px-5"}`}>
       <p className="rise inline-flex items-center gap-2 rounded-full border border-forest/15 bg-white/70 px-3 py-1 text-xs font-medium uppercase tracking-[.18em] text-forest/75 backdrop-blur"><Icon name={icon} className="h-3.5 w-3.5" />{eyebrow}</p>
       <h1 className="rise mt-5 max-w-3xl text-5xl leading-[1.05] sm:text-6xl lg:text-7xl" style={{ animationDelay: ".1s" }}>{title}</h1>
       <span aria-hidden="true" className="hero-rule mt-7 block h-px w-24 bg-gradient-to-r from-forest/50 to-transparent" />

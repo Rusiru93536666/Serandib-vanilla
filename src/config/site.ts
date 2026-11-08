@@ -1,4 +1,5 @@
 // CENTRAL CONFIG: edit everything marked [TBC] before launch.
+import type { BlogNode } from "@/lib/blog";
 export const TBC = "To be confirmed";
 export const site = {
   brand: "Ceylon Vanilla Essence",
@@ -17,6 +18,8 @@ export type Product = {
   uses: string[]; note: string; imageNote: string;
   specs: [string, string][]; packaging: string;
   images?: { src: string; alt: string }[];
+  // Optional rich-text "detailed description" (same document format as blog posts) and a featured YouTube video URL.
+  description?: BlogNode; video?: string;
 };
 
 export const products: Product[] = [
